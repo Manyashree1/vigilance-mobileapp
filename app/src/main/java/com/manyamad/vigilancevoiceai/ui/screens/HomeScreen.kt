@@ -15,20 +15,28 @@ import androidx.navigation.NavController
 
 @Composable
 fun HomeScreen(navController: NavController) {
-
     Column(
-        modifier = Modifier.fillMaxSize().background(Color.Black),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF0B0F1A))
+            .padding(20.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text("🟢 You are Safe", color = Color.Green)
+        Text("Vigilance AI", color = Color.White, style = MaterialTheme.typography.headlineMedium)
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(Modifier.height(10.dp))
 
-        Button(onClick = {
-            navController.navigate("incoming_call")
-        }) {
+        Text("Your calls are being monitored for fraud",
+            color = Color.Gray)
+
+        Spacer(Modifier.height(40.dp))
+
+        Button(
+            onClick = { navController.navigate("incoming_call") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("Simulate Incoming Call")
         }
     }

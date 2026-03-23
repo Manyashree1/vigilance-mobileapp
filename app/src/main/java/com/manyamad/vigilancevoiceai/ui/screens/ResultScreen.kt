@@ -19,20 +19,24 @@ import com.manyamad.vigilancevoiceai.data.model.AnalysisResult
 fun ResultScreen(navController: NavController) {
 
     Column(
-        modifier = Modifier.fillMaxSize().background(Color.Black),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF1A0000)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
 
-        Text("⚠️ HIGH RISK", color = Color.Red)
+        Text("⚠️ HIGH RISK", color = Color.Red, fontSize = 28.sp)
+
+        Spacer(Modifier.height(10.dp))
+
         Text("Scam Probability: 92%", color = Color.White)
+
         Text("Detected: OTP Scam", color = Color.Gray)
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(Modifier.height(30.dp))
 
-        Button(onClick = {
-            navController.navigate("action")
-        }) {
+        Button(onClick = { navController.navigate("action") }) {
             Text("Take Action")
         }
     }

@@ -12,82 +12,44 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
 fun IncomingCallScreen(navController: NavController) {
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(Color.Black, Color(0xFF0D1B2A))
-                )
-            )
+            .background(Color.Black),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+        Spacer(Modifier.height(60.dp))
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("Incoming Call", color = Color.Gray)
+            Text("Bank Support", color = Color.White, fontSize = 28.sp)
+            Text("+91 98XXXXXX12", color = Color.Gray)
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(40.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Button(
+                onClick = { navController.popBackStack() },
+                colors = ButtonDefaults.buttonColors(Color.Red)
+            ) { Text("Decline") }
 
-            // Caller Info
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-                Text(
-                    text = "Incoming Call",
-                    color = Color.Gray
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(
-                    text = "Bank Support",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.headlineMedium
-                )
-
-                Text(
-                    text = "+91 98XXXXXX12",
-                    color = Color.LightGray
-                )
-            }
-
-            // Buttons
-            Row(
-                modifier = Modifier.padding(bottom = 60.dp),
-                horizontalArrangement = Arrangement.spacedBy(40.dp)
-            ) {
-
-                // Reject Button
-                Button(
-                    onClick = { navController.popBackStack() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                    shape = CircleShape,
-                    modifier = Modifier
-                        .size(80.dp)
-                        .shadow(10.dp, CircleShape)
-                ) {
-                    Text("❌")
-                }
-
-                // Accept Button
-                Button(
-                    onClick = { navController.navigate("listening") },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853)),
-                    shape = CircleShape,
-                    modifier = Modifier
-                        .size(80.dp)
-                        .shadow(10.dp, CircleShape)
-                ) {
-                    Text("📞")
-                }
-            }
+            Button(
+                onClick = { navController.navigate("listening") },
+                colors = ButtonDefaults.buttonColors(Color.Green)
+            ) { Text("Accept") }
         }
     }
 }

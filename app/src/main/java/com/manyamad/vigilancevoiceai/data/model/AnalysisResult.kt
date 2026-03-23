@@ -1,8 +1,8 @@
 package com.manyamad.vigilancevoiceai.data.model
 
 data class AnalysisResult(
-    val risk: String,
-    val score: Double,
-    val intent: String,
-    val deepfake: Boolean
+    val final_risk: String,
+    val scam_intent: String,
+    val transcript_english: String,
+    val recommendation: String
 )

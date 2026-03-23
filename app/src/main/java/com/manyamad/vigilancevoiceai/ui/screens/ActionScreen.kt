@@ -20,44 +20,27 @@ fun ActionScreen(navController: NavController) {
             .fillMaxSize()
             .background(Color.Black)
             .padding(20.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement = Arrangement.Center
     ) {
 
-        Text(
-            text = "Take Action",
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.headlineSmall
-        )
+        Text("Recommended Actions", color = Color.White)
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(Modifier.height(20.dp))
 
-        ActionButton("🚫 Block Caller", Color.Red) {}
-        ActionButton("🔔 Alert Family", Color(0xFFFF9800)) {}
-
-        ActionButton("💳 Check Payment", Color(0xFF2962FF)) {
-            navController.navigate("payment_warning")
+        Button(onClick = {}, modifier = Modifier.fillMaxWidth()) {
+            Text("🚫 Block Number")
         }
-    }
-}
 
-@Composable
-fun ActionButton(text: String, color: Color, onClick: () -> Unit) {
+        Spacer(Modifier.height(10.dp))
 
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(containerColor = color),
-        shape = RoundedCornerShape(16.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(60.dp)
-            .padding(vertical = 6.dp)
-    ) {
-        Text(
-            text = text,
-            color = Color.White,
-            fontWeight = FontWeight.SemiBold
-        )
+        Button(onClick = {}, modifier = Modifier.fillMaxWidth()) {
+            Text("📞 Report to Cybercrime")
+        }
+
+        Spacer(Modifier.height(10.dp))
+
+        Button(onClick = {}, modifier = Modifier.fillMaxWidth()) {
+            Text("👨‍👩‍👧 Alert Family")
+        }
     }
 }
