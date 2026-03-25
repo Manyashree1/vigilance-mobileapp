@@ -1,47 +1,102 @@
 package com.manyamad.vigilancevoiceai.ui.screens
 
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.*
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 
 @Composable
-fun LoadingScreen(navController: NavController, backStackEntry: NavBackStackEntry) {
+fun LoadingScreen(
+    navController: NavController,
+    finalRisk: String,
+    scamIntent: String,
+    transcript: String,
+    recommendation: String
+) {
 
-    val risk = backStackEntry.arguments?.getString("risk") ?: ""
-    val intent = backStackEntry.arguments?.getString("intent") ?: ""
-    val transcript = backStackEntry.arguments?.getString("transcript") ?: ""
-    val rec = backStackEntry.arguments?.getString("rec") ?: ""
+    val deepBlue = Color(0xFF0F172A)
+    val black = Color(0xFF020617)
+    val cyan = Color(0xFF38BDF8)
 
-    var step by remember { mutableStateOf(0) }
+    val steps = listOf(
+        "Analyzing voice...",
+        "Detecting scam patterns...",
+        "Checking emotional stress...",
+        "Generating report..."
+    )
+
+    var currentStep by remember { mutableStateOf(0) }
+
+    val alphaAnim = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
-        repeat(3) {
-            delay(1000)
-            step++
+
+        alphaAnim.animateTo(1f, tween(800))
+
+        for (i in steps.indices) {
+            currentStep = i
+            delay(1200)
         }
-        navController.navigate("result/$risk/$intent/$transcript/$rec")
+
+        delay(800)
+
+        // 🚀 Navigate to result screen
+        navController.navigate(
+            "result/$finalRisk/$scamIntent/$transcript/$recommendation"
+        ) {
+            popUpTo("loading") { inclusive = true }
+        }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(listOf(deepBlue, black))
+            ),
+        contentAlignment = Alignment.Center
     ) {
 
-        Text("🔍 AI Analyzing...", style = MaterialTheme.typography.headlineMedium)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.alpha(alphaAnim.value)
+        ) {
 
-        Spacer(modifier = Modifier.height(20.dp))
+            // 🔵 Animated Indicator
+            CircularProgressIndicator(
+                color = cyan,
+                strokeWidth = 5.dp
+            )
 
-        if (step >= 1) Text("✔ Transcribing...")
-        if (step >= 2) Text("✔ Detecting intent...")
-        if (step >= 3) Text("✔ Checking fraud...")
+            Spacer(modifier = Modifier.height(40.dp))
 
-        Spacer(modifier = Modifier.height(20.dp))
+            // 🔥 Dynamic Step Text
+            Text(
+                text = steps[currentStep],
+                color = Color.White,
+                fontSize = 18.sp,
+                letterSpacing = 1.sp
+            )
 
-        CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = "AI Processing...",
+                color = cyan,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 2.sp
+            )
+        }
     }
 }

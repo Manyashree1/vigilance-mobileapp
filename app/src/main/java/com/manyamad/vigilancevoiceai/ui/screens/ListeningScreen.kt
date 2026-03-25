@@ -1,97 +1,130 @@
 package com.manyamad.vigilancevoiceai.ui.screens
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.manyamad.vigilancevoiceai.data.network.RetrofitInstance
 import kotlinx.coroutines.launch
-import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
+import java.io.FileOutputStream
 
 @Composable
 fun ListeningScreen(navController: NavController) {
 
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
     var isLoading by remember { mutableStateOf(false) }
 
+    // 🔥 File Picker
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
 
         uri?.let {
-            val file = File(it.path ?: "")
-            val body = MultipartBody.Part.createFormData(
-                "file",
-                file.name,
-                file.asRequestBody("audio/*".toMediaTypeOrNull())
-            )
-
             scope.launch {
-                isLoading = true
+                try {
+                    isLoading = true
 
-                val response = RetrofitInstance.api.verifyCall(body)
+                    // ✅ Convert URI → FILE (IMPORTANT FIX)
+                    val file = uriToFile(uri, context)
 
-                if (response.isSuccessful) {
-                    val data = response.body()
+                    // ✅ Convert file to request body
+                    val requestFile =
+                        file.asRequestBody("audio/wav".toMediaTypeOrNull())
 
-                    navController.navigate(
-                        "loading/${data?.finalRisk}/${data?.scamIntent}/${data?.transcriptEnglish}/${data?.recommendation}"
+                    val body = MultipartBody.Part.createFormData(
+                        "file",
+                        "audio.wav",
+                        requestFile
                     )
-                }
 
-                isLoading = false
+                    // ✅ API CALL
+                    val response = RetrofitInstance.api.verifyCall(body)
+
+                    if (response.isSuccessful && response.body() != null) {
+                        val data = response.body()!!
+
+                        navController.navigate(
+                            "loading/${data.finalRisk}/${data.scamIntent}/${data.transcriptEnglish}/${data.recommendation}"
+                        )
+                    }
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    isLoading = false
+                }
             }
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    // 🔥 UI
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-        Text("Vigilance Voice AI", style = MaterialTheme.typography.headlineLarge)
+            Text(
+                text = "Vigilance Voice AI",
+                style = MaterialTheme.typography.headlineMedium
+            )
 
-        Spacer(modifier = Modifier.height(10.dp))
-        Text("Protecting you from scam calls")
+            Spacer(modifier = Modifier.height(30.dp))
 
-        Spacer(modifier = Modifier.height(40.dp))
+            Button(
+                onClick = { launcher.launch("audio/*") }
+            ) {
+                Text("📁 Upload Audio")
+            }
 
-        Button(
-            onClick = { launcher.launch("audio/*") },
-            modifier = Modifier.size(180.dp)
-        ) {
-            Text("🎙️", style = MaterialTheme.typography.headlineLarge)
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Button(onClick = { launcher.launch("audio/*") }) {
-            Text("📁 Upload Recording")
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Button(onClick = {
-            navController.navigate("loading/HIGH/Loan Scam/Fake call detected/Do not share OTP")
-        }) {
-            Text("🚨 Live Monitoring (Demo)")
-        }
-        Button(onClick = { navController.navigate("history") }) {
-            Text("📜 View History")
-        }
-
-        if (isLoading) {
             Spacer(modifier = Modifier.height(20.dp))
-            CircularProgressIndicator()
+
+            Button(
+                onClick = {
+                    navController.navigate(
+                        "loading/HIGH/Loan Scam/Fake call detected/Do not share OTP"
+                    )
+                }
+            ) {
+                Text("🚨 Demo Result")
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            if (isLoading) {
+                CircularProgressIndicator()
+            }
         }
     }
+}
+
+
+// 🔥 VERY IMPORTANT FUNCTION (KEEP OUTSIDE COMPOSABLE)
+fun uriToFile(uri: Uri, context: Context): File {
+
+    val file = File(context.cacheDir, "temp_audio.wav")
+
+    val inputStream = context.contentResolver.openInputStream(uri)
+    val outputStream = FileOutputStream(file)
+
+    inputStream?.copyTo(outputStream)
+
+    inputStream?.close()
+    outputStream.close()
+
+    return file
 }
