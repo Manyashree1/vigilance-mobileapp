@@ -2,6 +2,7 @@ package com.manyamad.vigilancevoiceai.ui.screens
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -25,10 +26,8 @@ fun ListeningScreen(navController: NavController) {
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-
     var isLoading by remember { mutableStateOf(false) }
 
-    // 🔥 File Picker
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -38,32 +37,32 @@ fun ListeningScreen(navController: NavController) {
                 try {
                     isLoading = true
 
-                    // ✅ Convert URI → FILE (IMPORTANT FIX)
+                    Log.d("API_DEBUG", "🔥 API CALL STARTED")
+
                     val file = uriToFile(uri, context)
 
-                    // ✅ Convert file to request body
-                    val requestFile =
-                        file.asRequestBody("audio/wav".toMediaTypeOrNull())
+                    Log.d("API_DEBUG", "FILE READY")
+
+                    val requestFile = file.asRequestBody("audio/wav".toMediaTypeOrNull())
 
                     val body = MultipartBody.Part.createFormData(
-                        "file",
+                        "file",   // 🔥 MUST MATCH BACKEND
                         "audio.wav",
                         requestFile
                     )
 
-                    // ✅ API CALL
                     val response = RetrofitInstance.api.verifyCall(body)
 
-                    if (response.isSuccessful && response.body() != null) {
-                        val data = response.body()!!
+                    Log.d("API_DEBUG", "CODE: ${response.code()}")
 
-                        navController.navigate(
-                            "loading/${data.finalRisk}/${data.scamIntent}/${data.transcriptEnglish}/${data.recommendation}"
-                        )
+                    if (response.isSuccessful) {
+                        Log.d("API_DEBUG", "BODY: ${response.body()}")
+                    } else {
+                        Log.d("API_DEBUG", "ERROR: ${response.errorBody()?.string()}")
                     }
 
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Log.d("API_DEBUG", "EXCEPTION: ${e.message}")
                 } finally {
                     isLoading = false
                 }
@@ -71,7 +70,7 @@ fun ListeningScreen(navController: NavController) {
         }
     }
 
-    // 🔥 UI
+    // UI
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -85,22 +84,10 @@ fun ListeningScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            Button(
-                onClick = { launcher.launch("audio/*") }
-            ) {
+            Button(onClick = {
+                launcher.launch("audio/*")
+            }) {
                 Text("📁 Upload Audio")
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Button(
-                onClick = {
-                    navController.navigate(
-                        "loading/HIGH/Loan Scam/Fake call detected/Do not share OTP"
-                    )
-                }
-            ) {
-                Text("🚨 Demo Result")
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -112,10 +99,8 @@ fun ListeningScreen(navController: NavController) {
     }
 }
 
-
-// 🔥 VERY IMPORTANT FUNCTION (KEEP OUTSIDE COMPOSABLE)
+// 🔥 FILE CONVERTER (IMPORTANT)
 fun uriToFile(uri: Uri, context: Context): File {
-
     val file = File(context.cacheDir, "temp_audio.wav")
 
     val inputStream = context.contentResolver.openInputStream(uri)
