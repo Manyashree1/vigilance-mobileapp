@@ -1,43 +1,40 @@
 package com.manyamad.vigilancevoiceai.ui.screens
-import androidx.compose.foundation.background
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.ui.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
 @Composable
 fun HomeScreen(navController: NavController) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0B0F1A))
             .padding(20.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement = Arrangement.Center
     ) {
 
-        Text("Vigilance AI", color = Color.White, style = MaterialTheme.typography.headlineMedium)
+        Text("Vigilance AI", style = MaterialTheme.typography.headlineLarge)
 
-        Spacer(Modifier.height(10.dp))
-
-        Text("Your calls are being monitored for fraud",
-            color = Color.Gray)
-
-        Spacer(Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         Button(
-            onClick = { navController.navigate("incoming_call") },
+            onClick = { navController.navigate("listening") },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Simulate Incoming Call")
+            Text("🎙 Analyze Audio")
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Button(
+            onClick = { navController.navigate("history") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("📜 View History")
         }
     }
 }

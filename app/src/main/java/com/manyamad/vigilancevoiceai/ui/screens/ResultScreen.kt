@@ -1,43 +1,52 @@
 package com.manyamad.vigilancevoiceai.ui.screens
+
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.ui.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import com.manyamad.vigilancevoiceai.data.model.AnalysisResult
+import androidx.navigation.*
 
 @Composable
-fun ResultScreen(navController: NavController) {
+fun ResultScreen(navController: NavController, backStackEntry: NavBackStackEntry) {
+
+    val risk = backStackEntry.arguments?.getString("risk") ?: ""
+    val intent = backStackEntry.arguments?.getString("intent") ?: ""
+    val transcript = backStackEntry.arguments?.getString("transcript") ?: ""
+    val rec = backStackEntry.arguments?.getString("rec") ?: ""
+
+    val isHigh = risk == "HIGH"
+    val bg = if (isHigh) Color(0xFFFFCDD2) else Color(0xFFC8E6C9)
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF1A0000)),
+        modifier = Modifier.fillMaxSize().background(bg).padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
 
-        Text("⚠️ HIGH RISK", color = Color.Red, fontSize = 28.sp)
+        Text(
+            if (isHigh) "⚠️ SCAM DETECTED" else "✅ SAFE CALL",
+            style = MaterialTheme.typography.headlineLarge
+        )
 
-        Spacer(Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        Text("Scam Probability: 92%", color = Color.White)
+        Card {
+            Column(Modifier.padding(16.dp)) {
+                Text("Intent: $intent")
+                Text("Transcript: $transcript")
+                Text("Advice: $rec")
+            }
+        }
 
-        Text("Detected: OTP Scam", color = Color.Gray)
+        Spacer(modifier = Modifier.height(20.dp))
 
-        Spacer(Modifier.height(30.dp))
-
-        Button(onClick = { navController.navigate("action") }) {
-            Text("Take Action")
+        if (isHigh) {
+            Button(onClick = {}) { Text("📞 Block") }
+            Button(onClick = {}) { Text("🚨 Alert") }
+            Button(onClick = {}) { Text("📤 Share") }
         }
     }
 }
